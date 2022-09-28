@@ -2,7 +2,7 @@ from statistics import covariance
 import numpy as np 
 import cv2
 
-from typing import List 
+from typing import List, Tuple
 from .bounding_box import BoundingBox
 
 
@@ -47,7 +47,7 @@ def similarity_transform(
     shape2: np.ndarray[float],
     rotation: np.ndarray[float],
     scale: float,
-    ) -> None:
+    ) -> Tuple[np.ndarray[float], float]:
     rotation = np.zeros((2, 2, 1))
     scale = 0 
 
@@ -102,6 +102,7 @@ def similarity_transform(
     rotation[1, 0] = sin_theta 
     rotation[1, 1] = cos_theta
 
+    return rotation, scale
 
 def calculate_covariance(
     v_1: List[float],

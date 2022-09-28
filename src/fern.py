@@ -105,8 +105,8 @@ class Fern:
             
             # get bin output 
 
-            prediction: List[np.ndarray[float]] = [np.array([]) * len(regression_targets)] 
-            self._bin_output = [np.array([]) * bin_num]
+            prediction: List[np.ndarray[float]] = [np.array([]) for _ in range(len(regression_targets))] 
+            self._bin_output = [np.array([]) for _ in range(bin_num)]
             for i in range(bin_num):
                 temp: np.ndarray[float] = cv.zeros((self._landmark_num, 2, 1))
                 bin_size: int = len(shapes_in_bin[i])
@@ -143,8 +143,8 @@ class Fern:
             project_x: float = scale * (rotation[0, 0] * x + rotation[0, 1] * y) * bounding_box.width / 2. + shape[nearest_landmark_index_1, 0]
             project_y: float = scale * (rotation[1, 0] * x + rotation[1, 1] * y) * bounding_box.height / 2. + shape[nearest_landmark_index_1, 1]
 
-            project_x: int = int(np.max(0, np.min(project_x, image.shape[1] - 1.)))
-            project_y: int = int(np.max(0, np.min(project_y, image.shape[0] - 1.)))
+            project_x: int = int(max(0, min(project_x, image.shape[1] - 1.)))
+            project_y: int = int(max(0, min(project_y, image.shape[0] - 1.)))
             intensity_1: float = image[project_y, project_x]
 
             x = self._selected_pixel_locations[i, 2]
@@ -152,8 +152,8 @@ class Fern:
             project_x: float = scale * (rotation[0, 0] * x + rotation[0, 1] * y) * bounding_box.width / 2. + shape[nearest_landmark_index_2, 0]
             project_y: float = scale * (rotation[1, 0] * x + rotation[1, 1] * y) * bounding_box.height / 2. + shape[nearest_landmark_index_2, 1]
 
-            project_x: int = int(np.max(0, np.min(project_x, image.shape[1] - 1.)))
-            project_y: int = int(np.max(0, np.min(project_y, image.shape[0] - 1.)))
+            project_x: int = int(max(0, min(project_x, image.shape[1] - 1.)))
+            project_y: int = int(max(0, min(project_y, image.shape[0] - 1.)))
             intensity_2: float = image[project_y, project_x]
             
             if intensity_1 - intensity_2 >= self._threshold[i]:
