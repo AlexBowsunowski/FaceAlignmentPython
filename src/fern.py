@@ -1,6 +1,6 @@
 import numpy as np
 import cv2 as cv
-from typing import List
+from typing import List, IO
 from src.bounding_box import BoundingBox
 from utils import calculate_covariance
 
@@ -34,9 +34,10 @@ class Fern:
                 random_direction: np.ndarray = np.random.uniform(
                     low=-1.1,
                     high=1.1,
-                    size=(self._landmark_num, 2))
+                    size=(self._landmark_num, 2)
+                )
                 
-                random_direction = cv.normalize(random_direction, random_direction)
+                cv.normalize(random_direction, random_direction)
                 projection_result: List[float] = [0] * len(regression_targets)
                 # project regression targets along the random direction
                 for j in range(len(regression_targets)):
@@ -159,3 +160,49 @@ class Fern:
             if intensity_1 - intensity_2 >= self._threshold[i]:
                 index += int(np.pow(2, i))
         return self._bin_output[index]
+
+
+    def write(self, out: IO):
+        out.write(f"{self._fern_pixel_num}\n"
+                  f"{self._landmark_num}\n")
+        for i in range(self._fern_pixel_num):
+            out.write(" ".join(list(map(str, self._selected_pixel_locations[i, :]))))
+            out.write("\n")
+            out.write(
+                f"{self._selected_nearest_landmark_index[i, 0]}\n"
+                f"{self._selected_nearest_landmark_index[i, 1]}\n"
+                f"{self._threshold[i][0]}\n"
+            )
+        for i in range(len(self._bin_output)):
+            for j in range(self._bin_output[i].shape[0]):
+                out.write(
+                    f"{self._bin_output[i][j, 0]} {self._bin_output[i][j, 1]}"
+                )
+            out.write("\n")
+
+
+    def read(self, inp: IO):
+        self._fern_pixel_num = int(inp.readline().strip())
+        self._landmark_num = int
+        self._selected_nearest_landmark_index = np.zeros(
+            (self._fern_pixel_num, 2), dtype=int
+        )
+        self._selected_pixel_location = np.zeros(
+            (self._fern_pixel_num, 1)
+        )
+        self._threshold = np.zeros((self._fern_pixel_num, 1))
+        self._bin_output = []
+        for i in range(self._fern_pixel_num):
+            pixel_location = list(map(float, inp.readline().strip().split()))
+            self._selected_nearest_landmark_index[i, 0] = int(inp.readline().strip())
+            self._selected_nearest_landmark_index[i, 1] = int(inp.readline().strip())
+            self._threshold[i] = float(inp.readline().strip())
+        
+        bin_num = 2**self._fern_pixel_num
+        for i in range(bin_num):
+            temp = np.zeros((self._landmark_num, 2))
+            outputs = list(map(float, inp.readline().strip().split()))
+
+            temp[:, 0] = outputs[::2]
+            temp[:, 1] = outputs[1::2]
+            self._bin_output.append(temp)

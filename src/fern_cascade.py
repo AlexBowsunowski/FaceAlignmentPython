@@ -1,7 +1,7 @@
 import numpy as np 
 import cv2 as cv
 
-from typing import List 
+from typing import List, IO
 from fern import Fern
 from time import time 
 from src.bounding_box import BoundingBox
@@ -167,3 +167,15 @@ class FernCascade:
         
         return result 
 
+
+    def read(self, inp: IO):
+        self._second_level_num = int(inp.readline().strip())
+        self._ferns = [Fern() for _ in range(self._second_level_num)]
+        for fern in self._ferns:
+            fern.read(inp)
+    
+
+    def write(self, out: IO):
+        out.write(f"{self._second_level_num}")
+        for fern in self._ferns:
+            fern.write(out)
